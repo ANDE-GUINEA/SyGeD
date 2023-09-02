@@ -23,14 +23,22 @@ return new class extends Migration
                 ->cascadeOnDelete()
                 ->cascadeOnUpdate()
                 ->nullable();
+            $table->foreignId('type_id')
+                ->constrained()
+                ->cascadeOnDelete()
+                ->cascadeOnUpdate()
+                ->nullable();
             $table->string('code');
+            $table->string('init')->nullable();
             $table->string('objet')->nullable();
             $table->longText('content')->nullable();
-            $table->enum('status', ['En attente', 'En cours', 'Approuvé', 'Publié'])->default('En attente');
+            $table->enum('status', ['En Elaboration', 'Examen SGG', 'Examen Primature', 'Examen Presidence', 'Retour SGG', 'Retour Primature', 'Retour Presidence', 'Signé'])->default('En Elaboration');
             $table->boolean('okSGG')->default(false);
             $table->boolean('okPRIMATURE')->default(false);
             $table->boolean('okPRG')->default(false);
-            $table->string('documents')->nullable();
+            $table->string('visa')->nullable();
+            $table->string('corps')->nullable();
+            $table->string('autres')->nullable();
             $table->dateTime('submit_at')->nullable();
             $table->softDeletes();
             $table->timestamps();

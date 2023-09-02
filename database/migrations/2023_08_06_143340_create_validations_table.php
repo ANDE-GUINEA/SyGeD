@@ -23,6 +23,7 @@ return new class extends Migration
                 ->cascadeOnUpdate();
             $table->longText('comments')->nullable();
             $table->string('document')->nullable();
+            $table->string('color')->nullable();
             $table->enum('state', ['En attente', 'Approuvé', 'Rejeté'])->default('En attente');
             $table->softDeletes();
             $table->timestamps();

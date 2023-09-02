@@ -9,7 +9,7 @@ use Filament\Resources\Pages\CreateRecord;
 class CreateDecret extends CreateRecord
 {
     protected static string $resource = DecretResource::class;
-    protected static ?string $title = 'REDACTION D\'UN PROJET DE DECRET';
+    protected static ?string $title = 'Préparation d\'un projet de decret';
 
     protected function mutateFormDataBeforeCreate(array $data): array
     {

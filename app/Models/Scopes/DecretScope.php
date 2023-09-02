@@ -17,7 +17,7 @@ class DecretScope implements Scope
         // dd(Auth::user()->departement->inbox->id);
         if (Auth::user()->departement) {
             # code...
-            $builder->where('inbox_id', Auth::user()->departement->inbox->id);
+            $builder->where('inbox_id', Auth::user()->departement->inbox->id)->orWhere('init', Auth::user()->departement->name);
         }
     }
 }

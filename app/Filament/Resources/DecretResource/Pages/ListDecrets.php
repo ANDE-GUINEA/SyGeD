@@ -15,42 +15,43 @@ use Filament\Forms\Components\MarkdownEditor;
 class ListDecrets extends ListRecords
 {
     protected static string $resource = DecretResource::class;
-    protected static ?string $title = 'LES PROJETS DE DECRETS';
+    protected static ?string $title = 'LISTE DES PROJETS DE DECRET';
     protected function getHeaderActions(): array
     {
         return [
             Actions\CreateAction::make()
                 ->size('lg')
-                ->label('REDIGER UN PROJET DE DECRET'),
+                ->createAnother(false)
+                ->label('PREPARER UN PROJET DE DECRET'),
 
-            Action::make('create')
-            ->steps([
-                Step::make('Name')
-                ->description('Give the category a unique name')
-                ->schema([
-                    TextInput::make('name')
-                        ->required()
-                        ->live()
-                        ->afterStateUpdated(fn ($state, callable $set) => $set('slug', Str::slug($state))),
-                    TextInput::make('slug')
-                        ->disabled()
-                        ->required()
-                        ->unique(Category::class, 'slug'),
-                ])
-                ->columns(2),
-                Step::make('Description')
-                ->description('Add some extra details')
-                ->schema([
-                    MarkdownEditor::make('description'),
-                ]),
-                Step::make('Visibility')
-                ->description('Control who can view it')
-                ->schema([
-                    Toggle::make('is_visible')
-                        ->label('Visible to customers.')
-                        ->default(true),
-                ]),
-            ])
+            // Action::make('create')
+            // ->steps([
+            //     Step::make('Name')
+            //     ->description('Give the category a unique name')
+            //     ->schema([
+            //         TextInput::make('name')
+            //             ->required()
+            //             ->live()
+            //             ->afterStateUpdated(fn ($state, callable $set) => $set('slug', Str::slug($state))),
+            //         TextInput::make('slug')
+            //             ->disabled()
+            //             ->required()
+            //             ->unique(Category::class, 'slug'),
+            //     ])
+            //     ->columns(2),
+            //     Step::make('Description')
+            //     ->description('Add some extra details')
+            //     ->schema([
+            //         MarkdownEditor::make('description'),
+            //     ]),
+            //     Step::make('Visibility')
+            //     ->description('Control who can view it')
+            //     ->schema([
+            //         Toggle::make('is_visible')
+            //             ->label('Visible to customers.')
+            //             ->default(true),
+            //     ]),
+            // ])
         ];
     }
 }

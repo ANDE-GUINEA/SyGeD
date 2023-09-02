@@ -23,6 +23,7 @@ class WorkerResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-lock-closed';
     protected static ?string $navigationLabel = 'WORKERS';
+    protected static ?string $pollingInterval = '10s';
     // protected static ?int $navigationSort = 1;
     protected static ?string $navigationGroup = 'SETTINGS';
     public static function getNavigationBadge(): ?string
@@ -41,6 +42,7 @@ class WorkerResource extends Resource
                                 TextInput::make('name')
                                     ->required()
                                     ->unique()
+                                    ->autocapitalize('words')
                                     ->label('NOM DU WORKER'),
                             ]),
                     ])

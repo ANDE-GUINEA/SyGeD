@@ -56,7 +56,9 @@ class DecretPolicy
         if (auth()->user()->departement) {
             if (
                 auth()->user()->departement->name ===
-                $decret->init
+                $decret->init &&
+                auth()->user()->departement->inbox->id ===
+                $decret->inbox->id
             ) {
                 return $user->can('update_decret');
             }
@@ -88,7 +90,9 @@ class DecretPolicy
         if (auth()->user()->departement) {
             if (
                 auth()->user()->departement->name ===
-                $decret->init
+                $decret->init &&
+                auth()->user()->departement->inbox->id ===
+                $decret->inbox->id
             ) {
                 return $user->can('delete_decret');
             }

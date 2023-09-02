@@ -9,14 +9,17 @@ use App\Models\Scopes\DecretScoop;
 use App\Models\Scopes\DecretScope;
 use Spatie\Permission\Traits\HasRoles;
 use Illuminate\Notifications\Notifiable;
+use Filament\Models\Contracts\FilamentUser;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Jeffgreco13\FilamentBreezy\Traits\TwoFactorAuthenticatable;
 
 class User extends Authenticatable
 {
     use HasApiTokens,
+        TwoFactorAuthenticatable,
         HasFactory,
         Notifiable,
         HasRoles; //or HasFilamentShield
@@ -92,12 +95,12 @@ class User extends Authenticatable
     }
 
     /**
-     * Get all of the lois for the User
+     * Get all of the types for the User
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function lois(): HasMany
+    public function types(): HasMany
     {
-        return $this->hasMany(Loi::class);
+        return $this->hasMany(Type::class);
     }
 }

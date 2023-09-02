@@ -13,6 +13,7 @@
         --color: rgba(30, 30, 30);
         --bgColor: rgba(245, 245, 245);
         min-height: 100vh;
+        /* width::100vw; */
         display: grid;
         align-content: center;
         gap: 2rem;
@@ -212,24 +213,29 @@
     }
 </style>
 
-<div class="container dark:bg-gray-900 shadow-lg">
+<div class="container max-w-full overflow-auto bg-gray-100 rounded shadow-lg dark:bg-gray-900 fi-descript">
 
-    <h1 class="dark:text-white text-lg">{!! $record->code !!}</h1>
-    <ul class=" shadow contener w-full">
+    <h1 class="text-lg dark:text-white">
+        {{-- {!! $record->code !!} --}}
+        Soumis: @if ($record->submit_at)
+                    {{ Carbon\Carbon::parse($record->submit_at)->diffForHumans() }}
+                @endif
+    </h1>
+    <ul class="w-full contener">
         @forelse ($record->validations as $item)
 
-        <li style="--accent-color:#41516C" class="box">
+        <li style="--accent-color:{{ $item->color }}" class="box fi-descript">
             <div class="date">{!! $item->user->departement->name !!} {!! ':' !!} {!! $item->created_at->format('d/m/Y H:m') !!}</div>
-            <div class="descr dark:text-gray-700 dark:bg-gray-50 text-justify">
+            <div class="text-justify descr dark:text-gray-700 dark:bg-gray-50">
                 <p class="mt-2">
                     {!! $item->comments !!}
                 </p>
-                <hr class=" my-2">
+                <hr class="my-2 ">
                 <div>
 
                     @if ($item->document)
                         <a href="{{ asset('storage/' . $item->document) }}" target="__blank"
-                            class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg shadow  uppercase hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-blue-500 dark:focus:text-white">
+                            class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-900 uppercase bg-white border border-gray-200 rounded-lg shadow hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-blue-500 dark:focus:text-white">
                             <svg aria-hidden="true" class="w-4 h-4 mr-2 fill-current" fill="currentColor"
                                 viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
                                 <path fill-rule="evenodd"

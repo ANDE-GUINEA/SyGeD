@@ -81,24 +81,32 @@ class UserResource extends Resource
                                 ->default(12345678)
                                 ->maxLength(255)
                                 ->required()
-                                ->dehydrateStateUsing(static function ($state) use ($form) {
-                                    if (!empty($state)) {
-                                        return Hash::make($state);
-                                    }
+                                ->dehydrateStateUsing(fn (string $state): string => Hash::make($state))
+                                ->dehydrated(fn (?string $state): bool => filled($state))
+                                ->required(fn (string $operation): bool => $operation === 'create')
+                            // ->dehydrateStateUsing(static function ($state)
+                            // use ($form) {
+                            //     if (!empty($state)) {
+                            //         return Hash::make($state);
+                            //     }
 
-                                    $user = User::find($form->getColumns());
-                                    if ($user) {
-                                        return $user->password;
-                                    }
-                                }),
+                            //     $user = User::find($form->getColumns());
+                            //     if ($user) {
+                            //         return $user->password;
+                            //     }
+                            // }),
                         ]),
                     Grid::make(3)
                         ->schema([
                             Select::make('departement_id')
                                 ->relationship('departement', 'name')
+                                ->searchable()
+                                ->preload()
                                 ->label('DEPARTEMENT'),
                             Select::make('worker_id')
                                 ->relationship('worker', 'name')
+                                ->searchable()
+                                ->preload()
                                 ->label('WORKER'),
                             TextInput::make('fonction')->label('FONCTION'),
                         ]),
@@ -108,6 +116,7 @@ class UserResource extends Resource
 
         if (config('filament-user.shield')) {
             $rows[] = MultiSelect::make('roles')->relationship('roles', 'name')
+                ->searchable()
                 ->preload()
                 ->label(trans('filament-user::user.resource.roles'));
         }
