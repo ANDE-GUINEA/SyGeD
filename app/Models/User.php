@@ -4,6 +4,7 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 
+use Filament\Panel;
 use Laravel\Sanctum\HasApiTokens;
 use App\Models\Scopes\DecretScoop;
 use App\Models\Scopes\DecretScope;
@@ -16,7 +17,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Jeffgreco13\FilamentBreezy\Traits\TwoFactorAuthenticatable;
 
-class User extends Authenticatable
+class User extends Authenticatable implements FilamentUser
 {
     use HasApiTokens,
         TwoFactorAuthenticatable,
@@ -102,5 +103,11 @@ class User extends Authenticatable
     public function types(): HasMany
     {
         return $this->hasMany(Type::class);
+    }
+
+    public function canAccessPanel(Panel $panel): bool
+    {
+        // && $this->hasVerifiedEmail()
+        return str_ends_with($this->email, '@gouvernement.gov.gn');
     }
 }

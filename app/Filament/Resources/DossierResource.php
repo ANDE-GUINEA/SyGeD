@@ -19,6 +19,10 @@ class DossierResource extends Resource
     protected static ?string $model = Dossier::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationLabel = 'DOCUMENTS';
+    protected static ?string $pollingInterval = '10s';
+    // protected static ?int $navigationSort = 1;
+    protected static ?string $navigationGroup = 'Settings';
 
     public static function form(Form $form): Form
     {

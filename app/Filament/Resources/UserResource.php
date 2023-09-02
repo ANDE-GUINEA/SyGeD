@@ -33,7 +33,10 @@ class UserResource extends Resource
     protected static ?int $navigationSort = 9;
 
     protected static ?string $navigationIcon = 'heroicon-o-lock-closed';
-
+    public static function getNavigationBadge(): ?string
+    {
+        return static::getModel()::count();
+    }
     public static function getNavigationLabel(): string
     {
         return trans('filament-user::user.resource.label');
@@ -72,7 +75,7 @@ class UserResource extends Resource
                     Grid::make()
                         ->schema([
                             TextInput::make('email')
-                                ->suffix('@syged.gov')
+                                ->suffix('@gouvernement.gov.gn')
                                 // ->email()
                                 ->required()->label('E-MAIL'),
 

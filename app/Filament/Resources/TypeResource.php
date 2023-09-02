@@ -27,7 +27,7 @@ class TypeResource extends Resource
     protected static ?string $navigationLabel = 'TYPE DE DECRET';
     protected static ?string $pollingInterval = '10s';
     // protected static ?int $navigationSort = 1;
-    protected static ?string $navigationGroup = 'SETTINGS';
+    protected static ?string $navigationGroup = 'Settings';
     public static function getNavigationBadge(): ?string
     {
         return static::getModel()::count();

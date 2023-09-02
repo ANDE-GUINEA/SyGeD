@@ -25,7 +25,7 @@ class DepartementResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-lock-closed';
     protected static ?string $navigationLabel = 'DEPARTEMENTS';
     // protected static ?int $navigationSort = 1;
-    protected static ?string $navigationGroup = 'SETTINGS';
+    protected static ?string $navigationGroup = 'Settings';
     public static function getNavigationBadge(): ?string
     {
         return static::getModel()::count();
