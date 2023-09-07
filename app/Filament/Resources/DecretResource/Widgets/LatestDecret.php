@@ -17,6 +17,7 @@ use Malzariey\FilamentDaterangepickerFilter\Filters\DateRangeFilter;
 
 class LatestDecret extends BaseWidget
 {
+    protected int | string | array $columnSpan = 'full';
     protected static ?string $heading = 'LISTE DES DECRETS SOUMIS';
     public function table(Table $table): Table
     {
@@ -40,31 +41,29 @@ class LatestDecret extends BaseWidget
                 TextColumn::make('created_at')
                     ->searchable()
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true)
-                    ->label('Date de création')
+                    ->toggleable(isToggledHiddenByDefault: false)
+                    ->label('DATE DE CREATION')
                     ->dateTime('d/m/Y'),
-
                 TextColumn::make('submit_at')
                     ->searchable()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: false)
-                    ->label('Date de soumission')
+                    ->label('DATE DE SOUMISSION')
                     ->dateTime('d/m/Y'),
-
                 TextColumn::make('objet')
                     ->searchable()
                     ->sortable()
                     ->tooltip(fn (Model $record): string => " {$record->content}")
                     ->html()
                     ->toggleable(isToggledHiddenByDefault: false)
-                    ->label('LIBELLE DU DECRET'),
+                    ->label('LIBELLE'),
                 TextColumn::make('type.title')
                     ->searchable()
                     ->sortable()
                     ->tooltip(fn (Model $record): string => " {$record->content}")
                     ->html()
                     ->toggleable(isToggledHiddenByDefault: false)
-                    ->label('TYPE DE DECRET'),
+                    ->label('TYPE'),
                 TextColumn::make('init')
                     ->searchable()
                     ->sortable()
@@ -86,10 +85,9 @@ class LatestDecret extends BaseWidget
                         'primary' => static fn ($state): bool => $state === 'Examen Primature',
                         'primary' => static fn ($state): bool => $state === 'Examen Presidence',
                         'danger' => static fn ($state): bool => $state === 'Retour SGG',
-
                         'danger' => static fn ($state): bool => $state === 'Retour Primature',
                         'danger' => static fn ($state): bool => $state === 'Retour Presidence',
-                        'success' => static fn ($state): bool => $state === 'Signé par la Presidence',
+                        'success' => static fn ($state): bool => $state === 'Signé',
                     ])
                     ->toggleable(isToggledHiddenByDefault: false)
                     ->sortable()
@@ -112,7 +110,7 @@ class LatestDecret extends BaseWidget
                     ->searchable()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true)
-                    ->label('CONTENU DU DECRET'),
+                    ->label('CONTENU'),
                 TextColumn::make('created_at')
                     ->searchable()
                     ->sortable()
@@ -125,11 +123,7 @@ class LatestDecret extends BaseWidget
             //     'md' => 2,
             //     'xl' => 3,
             // ])
-            ->emptyStateActions([
-                Tables\Actions\CreateAction::make()
-                    ->size('lg')
-                    ->label('PREPARER UN PROJET DE DECRET'),
-            ])->bulkActions([
+            ->bulkActions([
                 ExportBulkAction::make()
                     ->label('Exporter en Excel'),
             ]);

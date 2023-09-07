@@ -85,4 +85,14 @@ class Decret extends Model
     {
         return $this->belongsTo(Type::class);
     }
+
+    /**
+     * Get all of the messages for the Worker
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function messages(): HasMany
+    {
+        return $this->hasMany(Message::class);
+    }
 }

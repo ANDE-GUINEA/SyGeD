@@ -110,4 +110,13 @@ class User extends Authenticatable implements FilamentUser
         // && $this->hasVerifiedEmail()
         return str_ends_with($this->email, '@gouvernement.gov.gn');
     }
+    /**
+     * Get all of the messages for the Worker
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function messages(): HasMany
+    {
+        return $this->hasMany(Message::class);
+    }
 }

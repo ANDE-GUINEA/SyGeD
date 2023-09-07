@@ -66,6 +66,9 @@ class DecretResource extends Resource
                     TextInput::make('objet')
                         ->required()
                         ->helperText('Merci de renseigner le libelle du decret.')
+                        ->extraAttributes(['class' => 'uppercase'])
+                        ->dehydrateStateUsing(fn (string $state): string => ucwords($state))
+                        ->live()
                         // ->hint('Documentation? What documentation?!')
                         ->label('LIBELLE DU DECRET'),
                     Grid::make(1)->schema([
@@ -176,7 +179,7 @@ class DecretResource extends Resource
                         ->label('CONFIDENTIELS (accessibles uniquement par la Présidence et la Primature)')
                         ->enableOpen()
                         ->maxSize(1024)
-                        ->directory('private_files')
+                        ->directory('confidential_files')
                         ->preserveFilenames()
                         ->enableDownload(),
                 ])
@@ -203,10 +206,9 @@ class DecretResource extends Resource
                 TextColumn::make('created_at')
                     ->searchable()
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true)
-                    ->label('Date de création')
+                    ->toggleable(isToggledHiddenByDefault: false)
+                    ->label('DATE DE CREATION')
                     ->dateTime('d/m/Y'),
-
                 TextColumn::make('submit_at')
                     ->searchable()
                     ->sortable()
@@ -220,14 +222,14 @@ class DecretResource extends Resource
                     ->tooltip(fn (Model $record): string => " {$record->content}")
                     ->html()
                     ->toggleable(isToggledHiddenByDefault: false)
-                    ->label('LIBELLE DU DECRET'),
+                    ->label('LIBELLE'),
                 TextColumn::make('type.title')
                     ->searchable()
                     ->sortable()
-                    ->tooltip(fn (Model $record): string => " {$record->content}")
+                    ->tooltip(fn (Model $record): string => " {$record->type->description}")
                     ->html()
                     ->toggleable(isToggledHiddenByDefault: false)
-                    ->label('TYPE DE DECRET'),
+                    ->label('TYPE'),
                 TextColumn::make('init')
                     ->searchable()
                     ->sortable()

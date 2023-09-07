@@ -7,17 +7,18 @@ use Filament\Actions;
 use App\Models\Decret;
 use App\Models\Worker;
 use App\Models\Dossier;
+use App\Models\Message;
 use App\Models\Validation;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Toggle;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
+use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ViewRecord;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\RichEditor;
 use App\Filament\Resources\DecretResource;
 use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
-use Filament\Notifications\Notification;
 
 class ViewDecret extends ViewRecord implements HasShieldPermissions
 {
@@ -29,40 +30,19 @@ class ViewDecret extends ViewRecord implements HasShieldPermissions
         return ['view', 'view_any', 'create', 'update', 'delete', 'delete_any', 'retourner', 'valider', 'soumettre'];
     }
 
-
-
-    protected function retour_possible()
-    {
-        if (auth()->user()->worker) {
-            # code...
-            if (auth()->user()->worker->name == 'PRIMATURE' || auth()->user()->worker->name == 'PRG' || auth()->user()->worker->name == 'SGG') {
-                if ($this->record->okPRIMATURE == false || $this->record->okSGG == false || $this->record->okPRG == false) {
-                    return auth()
-                        ->user()
-                        ->can('retourne', $this->record);
-                } else {
-                    return auth()
-                        ->user()
-                        ->can('retourne', $this->record);
-                }
-            } else {
-                return !auth()
-                    ->user()
-                    ->can('retourne', $this->record);
-            }
-        } else {
-            return auth()
-                ->user()
-                ->can('retourne', $this->record);
-        }
-    }
-
-
-
-    protected function validate_possible()
+protected function retour_possible()
     {
         if (auth()->user()->worker) {
             if (auth()->user()->worker->name == 'PRIMATURE' || auth()->user()->worker->name == 'SGG' || auth()->user()->worker->name == 'PRG') {
+                if (!$this->record->okPrimature || !$this->record->okPRG || !$this->record->okSGG) {
+                    return auth()
+                        ->user()
+                        ->can('valider', $this->record);
+                } else {
+                    return !auth()
+                        ->user()
+                        ->can('valider', $this->record);
+                }
                 return auth()
                     ->user()
                     ->can('valider', $this->record);
@@ -77,6 +57,35 @@ class ViewDecret extends ViewRecord implements HasShieldPermissions
                 ->can('valider', $this->record);
         }
     }
+
+   protected function validate_possible()
+    {
+        if (auth()->user()->worker) {
+            if (auth()->user()->worker->name == 'PRIMATURE' || auth()->user()->worker->name == 'SGG') {
+                if (!$this->record->okPrimature || !$this->record->okPRG || !$this->record->okSGG) {
+                    return auth()
+                        ->user()
+                        ->can('valider', $this->record);
+                } else {
+                    return !auth()
+                        ->user()
+                        ->can('valider', $this->record);
+                }
+                return auth()
+                    ->user()
+                    ->can('valider', $this->record);
+            } else {
+                return !auth()
+                    ->user()
+                    ->can('valider', $this->record);
+            }
+        } else {
+            return auth()
+                ->user()
+                ->can('valider', $this->record);
+        }
+    }
+
 
     protected function confirm_possible()
     {
@@ -100,10 +109,7 @@ class ViewDecret extends ViewRecord implements HasShieldPermissions
     protected function soumission_possible()
     {
         if (auth()->user()->worker) {
-            if (
-                auth()->user()->worker->name == 'DEPARTEMENT' && auth()->user()->departement->inbox->id ===
-                $this->record->inbox->id
-            ) {
+            if (auth()->user()->worker->name == 'DEPARTEMENT' && auth()->user()->departement->inbox->id === $this->record->inbox->id) {
                 return auth()
                     ->user()
                     ->can('soumission', $this->record);
@@ -123,10 +129,7 @@ class ViewDecret extends ViewRecord implements HasShieldPermissions
         $myP = Decret::where('init', $this->record->init)->first();
         if (auth()->user()->worker) {
             // || auth()->user()->departement->name == $myP->init
-            if (
-                auth()->user()->worker->name == 'PRG' && auth()->user()->departement->inbox->id ===
-                $this->record->inbox->id
-            ) {
+            if (auth()->user()->worker->name == 'PRG' && auth()->user()->departement->inbox->id === $this->record->inbox->id) {
                 return auth()
                     ->user()
                     ->can('retourne', $this->record);
@@ -147,7 +150,7 @@ class ViewDecret extends ViewRecord implements HasShieldPermissions
         return [
             Actions\EditAction::make(),
 
-            Action::make('dossier')
+            Action::make('validerPgr')
                 ->label('VALIDER LE DECRET')
                 ->color('success')
                 // ->requiresConfirmation()
@@ -186,17 +189,47 @@ class ViewDecret extends ViewRecord implements HasShieldPermissions
                         # code...
                         Validation::create([
                             'decret_id' => $this->record->id,
-                            'comments' => 'Nous sommes ravis de vous informer que le projet de décret portant le code ' . $this->record->code . ' a été officiellement validé par notre département.',
+                            'comments' => 'Nous sommes ravis de vous informer que le projet de décret portant le code ' . $this->record->code . ' a été officiellement validé et signé par le President de la République.',
                             // 'comments' => $data['comments'],
                             // 'document' => $data['document'],
-                            'color' => '#1B5E20',
+                            'color' => '#43A047',
+                            'type' => 'valider',
                         ]);
                         $inbox = Inbox::where('name', 'SGG')->first();
+                        $inbox1 = Inbox::where('name', 'PRIMATURE')->first();
+                        $inbox2 = Inbox::where('name', $this->record->init)->first();
                         $this->record->update([
                             'inbox_id' => $inbox->id,
-                            'status' => 'Signé par la Presidence',
+                            'status' => 'Signé',
                             'okPRG' => true,
                         ]);
+                        $messageTitle = 'Notification de Validation du Projet de Décret (' . $this->record->code . ')';
+                        $message = 'Nous avons le plaisir de vous informer que le projet de décret portant le code (' . $this->record->code . ') a été signé par le President de la République.';
+                        Message::create([
+                            'decret_id' => $this->record->id,
+                            'inbox_id' => $inbox->id,
+                            'title' => $messageTitle,
+                            'contenu' => $message,
+                        ]);
+                        Message::create([
+                            'decret_id' => $this->record->id,
+                            'inbox_id' => $inbox1->id,
+                            'title' => $messageTitle,
+                            'contenu' => $message,
+                        ]);
+                        Message::create([
+                            'decret_id' => $this->record->id,
+                            'inbox_id' => $inbox2->id,
+                            'title' => $messageTitle,
+                            'contenu' => $message,
+                        ]);
+
+                        $recipient = auth()->user();
+                        $recipient->notify(
+                            Notification::make()
+                                ->title('Decret validé avec succès!')
+                                ->toDatabase(),
+                        );
                         Notification::make()
                             ->title('Validé avec succès')
                             ->success()
@@ -217,7 +250,6 @@ class ViewDecret extends ViewRecord implements HasShieldPermissions
                 ->hidden($this->soumission_possible())
                 ->action(function () {
                     $workDepartement = Worker::where('name', 'departement')->first();
-
                     if ($this->record->validations->count() >= 1) {
                         $comments = 'Prière de recevoir à nouveau le projet de decret ' . $this->record->code . 'pour examen et avis. ';
                     } else {
@@ -231,9 +263,19 @@ class ViewDecret extends ViewRecord implements HasShieldPermissions
                             'decret_id' => $this->record->id,
                             'comments' => $comments,
                             'color' => '#1B5F8C',
+                            'type' => 'soumis',
+
 
                             // 'comments' => $data['comments'],
                             // 'document' => $data['document'],
+                        ]);
+                        $messageTitle = 'Réception du projet de decret ' . $this->record->code;
+                        $message = 'Prière de recevoir le projet de decret ' . $this->record->code . ' pour examen et avis. ';
+                        Message::create([
+                            'decret_id' => $this->record->id,
+                            'inbox_id' => $inbox->id,
+                            'title' => $messageTitle,
+                            'contenu' => $message,
                         ]);
 
                         $this->record->update([
@@ -242,11 +284,11 @@ class ViewDecret extends ViewRecord implements HasShieldPermissions
                             'submit_at' => now(),
                         ]);
                         // $recipient = $this->record->user();
-                        $recipient = $inbox->user;
-
+                        $recipient = auth()->user();
+                        $titleM = 'Le projet de decret ' . $this->record->code . ' a été transmis avec succès ';
                         $recipient->notify(
                             Notification::make()
-                                ->title('Saved successfully')
+                                ->title("$titleM")
                                 ->toDatabase(),
                         );
                         Notification::make()
@@ -282,28 +324,9 @@ class ViewDecret extends ViewRecord implements HasShieldPermissions
                     $workDep = Worker::where('name', 'Departement')->first();
                     $workSgg = Worker::where('name', 'sgg')->first();
                     $workPm = Worker::where('name', 'primature')->first();
-                    $workPrg = Worker::where('name', 'primature')->first();
+                    $workPrg = Worker::where('name', 'prg')->first();
 
                     if (auth()->user()->IsWorker) {
-                        //Action du departement
-                        if (auth()->user()->worker->id === $workDep->id) {
-                            # code...
-                            Validation::create([
-                                'decret_id' => $this->record->id,
-                                'comments' => $data['comments'],
-                                'document' => $data['document'],
-                            ]);
-                            $inbox = Inbox::where('name', 'SGG')->first();
-                            $this->record->update([
-                                'inbox_id' => $inbox->id,
-                                'status' => 'En cours',
-                            ]);
-                            Notification::make()
-                                ->title('Envoyé avec succès')
-                                ->success()
-                                ->send();
-                            return redirect()->route('filament.admin.resources.decrets.index');
-                        }
                         //Action du SGG
                         if (auth()->user()->worker->id === $workSgg->id) {
                             # code...
@@ -311,48 +334,88 @@ class ViewDecret extends ViewRecord implements HasShieldPermissions
                                 'decret_id' => $this->record->id,
                                 'comments' => $data['comments'],
                                 'document' => $data['document'],
-                                'color' => '#FF5722',
+                                'color' => '#E24A68',
+                                'type' => 'retourner',
                             ]);
                             $inbox = Inbox::where('name', $this->record->init)->first();
                             $this->record->update([
                                 'inbox_id' => $inbox->id,
                                 'status' => 'Retour SGG',
                             ]);
+
+                            $messageTitle = 'Notification de retour du Projet de Décret (' . $this->record->code . ')';
+                            $message = 'Prière de recevoir le projet de decret ' . $this->record->code . ' correction. ';
+                            Message::create([
+                                'decret_id' => $this->record->id,
+                                'inbox_id' => $inbox->id,
+                                'title' => $messageTitle,
+                                'contenu' => $message,
+                            ]);
                             Notification::make()
-                                ->title('Envoyé avec succès')
+                                ->title('Rétourner avec succès!')
                                 ->success()
                                 ->send();
-                            $recipient = $inbox->user;
+
+                            $recipient = auth()->user();
 
                             $recipient->notify(
                                 Notification::make()
-                                    ->title('Saved successfully')
+                                    ->title('Decret retourner avec succès!')
                                     ->toDatabase(),
                             );
                             return redirect()->route('filament.admin.resources.decrets.index');
                         }
+
                         //Action de la PRIMATURE
                         if (auth()->user()->worker->id === $workPm->id) {
-                            # code...
-                            // $this->replaceMountedAction('publish');
                             Validation::create([
                                 'decret_id' => $this->record->id,
                                 'comments' => $data['comments'],
                                 'document' => $data['document'],
                                 'color' => '#E24A68',
+                                'type' => 'retourner',
                             ]);
                             $inbox = Inbox::where('name', $this->record->init)->first();
+                            $inbox1 = Inbox::where('name', "SGG")->first();
+                            $inbox2 = Inbox::where('name', $this->record->init)->first();
                             $this->record->update([
                                 'inbox_id' => $inbox->id,
                                 'status' => 'Retour Primature',
                                 'okSGG' => false,
                             ]);
+                            $messageTitle =
+                                'Notification de retour du Projet de Décret (' . $this->record->code . ')';
+                            $message = 'Prière de recevoir le projet de decret ' . $this->record->code . ' correction. ';
+                            Message::create([
+                                'decret_id' => $this->record->id,
+                                'inbox_id' => $inbox1->id,
+                                'title' => $messageTitle,
+                                'contenu' => $message,
+                            ]);
+                            Message::create([
+                                'decret_id' => $this->record->id,
+                                'inbox_id' => $inbox2->id,
+                                'title' => $messageTitle,
+                                'contenu' => $message,
+                            ]);
+                            Notification::make()
+                                ->title('Rétourner avec succès!')
+                                ->success()
+                                ->send();
+
+                            $recipient = auth()->user();
+                            $recipient->notify(
+                                Notification::make()
+                                    ->title('Decret retourner avec succès!')
+                                    ->toDatabase(),
+                            );
                             Notification::make()
                                 ->title('Envoyé avec succès')
                                 ->success()
                                 ->send();
                             return redirect()->route('filament.admin.resources.decrets.index');
                         }
+
                         //Action de la PRESIDENCE
                         if (auth()->user()->worker->id === $workPrg->id) {
                             # code...
@@ -360,19 +423,51 @@ class ViewDecret extends ViewRecord implements HasShieldPermissions
                                 'decret_id' => $this->record->id,
                                 'comments' => $data['comments'],
                                 'document' => $data['document'],
-                                'color' => '#DD2C00',
+                                'color' => '#E24A68',
+                                'type' => 'retourner',
                             ]);
                             $inbox = Inbox::where('name', $this->record->init)->first();
+                            $inbox1 = Inbox::where('name', "SGG")->first();
+                            $inbox2 = Inbox::where('name', "PRIMATURE")->first();
                             $this->record->update([
                                 'inbox_id' => $inbox->id,
                                 'status' => 'Retour Presidence',
                                 'okPRIMATURE' => false,
                                 'okSGG' => false,
                             ]);
+                            $messageTitle = 'Notification de Retour du Projet de Décret (' . $this->record->code . ')';
+                            $messageTitle
+                                = 'Notification de Retour du Projet de Décret (' . $this->record->code . ')';
+                            $message = 'Nous tenons à vous informer que nous avons décidé de retourner le projet de décret portant le code ' . $this->record->code;
+                            Message::create([
+                                'decret_id' => $this->record->id,
+                                'inbox_id' => $inbox->id,
+                                'title' => $messageTitle,
+                                'contenu' => $message,
+                            ]);
+                            Message::create([
+                                'decret_id' => $this->record->id,
+                                'inbox_id' => $inbox1->id,
+                                'title' => $messageTitle,
+                                'contenu' => $message,
+                            ]);
+                            Message::create([
+                                'decret_id' => $this->record->id,
+                                'inbox_id' => $inbox2->id,
+                                'title' => $messageTitle,
+                                'contenu' => $message,
+                            ]);
                             Notification::make()
-                                ->title('Envoyé avec succès')
+                                ->title('Rétourner avec succès!')
                                 ->success()
                                 ->send();
+
+                            $recipient = auth()->user();
+                            $recipient->notify(
+                                Notification::make()
+                                    ->title('Decret retourner avec succès!')
+                                    ->toDatabase(),
+                            );
                             return redirect()->route('filament.admin.resources.decrets.index');
                         }
                     }
@@ -387,25 +482,10 @@ class ViewDecret extends ViewRecord implements HasShieldPermissions
                 ->color('success')
                 ->hidden($this->validate_possible())
                 // ->modalWidth('3xl')
-                ->modalSubmitActionLabel('OUI, JE COMFIRME')
+                ->modalSubmitActionLabel('OUI, JE CONFIRME')
                 ->requiresConfirmation()
                 ->successRedirectUrl(route('filament.admin.resources.decrets.index'))
-                // ->form([
-                //     RichEditor::make('comments')->label('VOTRE COMMENTAIRE'),
-                //     FileUpload::make('document')
-                //         // ->required()
-                //         ->label('DOCUMENT')
-                //         ->enableOpen()
-                //         // ->maxSize(1024)
-                //         ->directory('decrets_files')
-                //         ->preserveFilenames()
-                //         ->enableDownload(),
-                // ])
-                // ->fillForm([
-                //     'title' => $this->record->objet,
-                //     'content' => $this->record->content,
-                // ])
-                // ->disabledForm()
+
                 ->action(function (array $data) {
                     // dd('ok');
                     $workSgg = Worker::where('name', 'sgg')->first();
@@ -415,10 +495,9 @@ class ViewDecret extends ViewRecord implements HasShieldPermissions
                     if (auth()->user()->worker->id === $workSgg->id) {
                         Validation::create([
                             'decret_id' => $this->record->id,
-                            'comments' => 'Nous sommes ravis de vous informer que le projet de décret portant le code ' . $this->record->code . ' a été officiellement validé par notre département. Cette démarche de validation témoigne de la conformité du projet de décret aux réglementations en vigueur ainsi qu\'aux exigences juridiques et normatives qui lui sont applicables.',
-                            // 'comments' => $data['comments'],
-                            // 'document' => $data['document'],
+                            'comments' => 'Nous sommes ravis de vous informer que le projet de décret portant le code ' . $this->record->code . ' a été officiellement validé par notre département.',
                             'color' => '#43A047',
+                            'type' => 'valider',
                         ]);
                         $inbox = Inbox::where('name', 'PRIMATURE')->first();
                         $this->record->update([
@@ -426,6 +505,21 @@ class ViewDecret extends ViewRecord implements HasShieldPermissions
                             'status' => 'Examen Primature',
                             'okSGG' => true,
                         ]);
+                        $messageTitle = 'Notification de Validation du Projet de Décret (' . $this->record->code . ')';
+                        $message = 'Nous avons le plaisir de vous informer que le projet de décret portant le code (' . $this->record->code . ') a été validé à notre niveau.';
+                        Message::create([
+                            'decret_id' => $this->record->id,
+                            'inbox_id' => $inbox->id,
+                            'title' => $messageTitle,
+                            'contenu' => $message,
+                        ]);
+
+                        $recipient = auth()->user();
+                        $recipient->notify(
+                            Notification::make()
+                                ->title('Decret retourner avec succès!')
+                                ->toDatabase(),
+                        );
                         Notification::make()
                             ->title('Validé avec succès')
                             ->success()
@@ -439,14 +533,44 @@ class ViewDecret extends ViewRecord implements HasShieldPermissions
                             'decret_id' => $this->record->id,
                             'comments' => 'Nous sommes ravis de vous informer que le projet de décret portant le code ' . $this->record->code . ' a été officiellement validé par notre département.',
                             // 'comments' => $data['comments'],
-                            'color' => '#388E3C',
+                            'color' => '#43A047',
+                            'type' => 'valider',
                         ]);
                         $inbox = Inbox::where('name', 'PRG')->first();
+                        $inbox1 = Inbox::where('name', 'SGG')->first();
+                        $inbox2 = Inbox::where('name', $this->record->init)->first();
                         $this->record->update([
                             'inbox_id' => $inbox->id,
                             'status' => 'Examen Presidence',
                             'okPRIMATURE' => true,
                         ]);
+                        $messageTitle = 'Notification de Validation du Projet de Décret (' . $this->record->code . ')';
+                        $message = 'Nous avons le plaisir de vous informer que le projet de décret portant le code (' . $this->record->code . ') a été validé à notre niveau.';
+                        Message::create([
+                            'decret_id' => $this->record->id,
+                            'inbox_id' => $inbox->id,
+                            'title' => $messageTitle,
+                            'contenu' => $message,
+                        ]);
+                        Message::create([
+                            'decret_id' => $this->record->id,
+                            'inbox_id' => $inbox1->id,
+                            'title' => $messageTitle,
+                            'contenu' => $message,
+                        ]);
+                        Message::create([
+                            'decret_id' => $this->record->id,
+                            'inbox_id' => $inbox2->id,
+                            'title' => $messageTitle,
+                            'contenu' => $message,
+                        ]);
+
+                        $recipient = auth()->user();
+                        $recipient->notify(
+                            Notification::make()
+                                ->title('Decret validé avec succès!')
+                                ->toDatabase(),
+                        );
                         Notification::make()
                             ->title('Validé avec succès')
                             ->success()
@@ -454,7 +578,6 @@ class ViewDecret extends ViewRecord implements HasShieldPermissions
                         return redirect()->route('filament.admin.resources.decrets.index');
                     }
                     //Validation de la PRG
-
                 }),
             // ->stickyModalHeader()
             // ->stickyModalFooter()

@@ -31,6 +31,7 @@ use App\Filament\Resources\DecretResource\Widgets\LatestDecret;
 
 class AdminPanelProvider extends PanelProvider
 {
+    protected int | string | array $columnSpan = 'full';
     public function panel(Panel $panel): Panel
     {
         return $panel
@@ -42,8 +43,8 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->login()
-            // ->profile()
-            ->registration()
+            ->profile()
+            // ->registration()
             ->colors([
                 'danger' => Color::Rose,
                 'gray' => Color::Gray,
@@ -63,10 +64,11 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
             ->widgets([
+
                 // Widgets\AccountWidget::class,
                 // Widgets\FilamentInfoWidget::class,
-                DecretChart::class,
                 StatsOverview::class,
+                // DecretChart::class,
                 LatestDecret::class,
                 // OverlookWidget::class,
             ])

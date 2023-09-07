@@ -14,6 +14,7 @@ class DecretChart extends ApexChartWidget
 // ChartWidget
 {
     protected static string $color = 'info';
+    protected int | string | array $columnSpan = 'full';
 
     // protected function getData(): array
     // {
@@ -48,7 +49,7 @@ class DecretChart extends ApexChartWidget
      *
      * @var string|null
      */
-    protected static ?string $heading = 'GRAPHIQUE DES DECRETS';
+    protected static ?string $heading = 'GRAPHIQUE DES DECRETS INITIES';
 
     /**
      * Chart options (series, labels, types, size, animations...)
