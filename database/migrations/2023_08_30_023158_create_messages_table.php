@@ -23,7 +23,7 @@ return new class extends Migration
                 ->cascadeOnDelete()
                 ->cascadeOnUpdate()
                 ->nullable();
-            $table->foreignId('worker_id')
+            $table->foreignId('inbox_id')
                 ->constrained()
                 ->cascadeOnDelete()
                 ->cascadeOnUpdate()

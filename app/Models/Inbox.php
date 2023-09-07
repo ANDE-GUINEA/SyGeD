@@ -58,4 +58,13 @@ class Inbox extends Model
     {
         return $this->hasMany(Decret::class);
     }
+    /**
+     * Get all of the messages for the Inbox
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function messages(): HasMany
+    {
+        return $this->hasMany(Message::class);
+    }
 }
