@@ -68,7 +68,6 @@ class AdminPanelProvider extends PanelProvider
                 // Widgets\AccountWidget::class,
                 // Widgets\FilamentInfoWidget::class,
                 StatsOverview::class,
-                // DecretChart::class,
                 LatestDecret::class,
                 // OverlookWidget::class,
             ])

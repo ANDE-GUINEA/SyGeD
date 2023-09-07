@@ -24,48 +24,13 @@ class StatsOverview extends BaseWidget
     }
     protected function getStats(): array
     {
-        if (auth()->user()->worker) {
-            if (auth()->user()->worker->name === 'PRG' || auth()->user()->worker->name === 'SGG' || auth()->user()->worker->name === 'PRIMATURE') {
-
-                $returner = auth()->user()->validations->where('type', 'retourner')->count();
-                $valider = auth()->user()->validations->where('type', 'valider')->count();
-                $totalSoumis = $returner;
-                $Dvalider = $valider;
-                $Dtitle = "VALIDES";
-                $title1 = 'RETOURNES';
-
-                $total = Validation::where('user_id', auth()->user()->id)
-                    ->get()
-                    ->count();
-                $titleTotal = 'REÇUS';
-            } else {
-
-                # code...
-                $titleTotal = "TOTAL";
-                $totalSoumis = Decret::whereNotNull('submit_at')
-                    ->get()
-                    ->count();
-                $title1 = 'SOUMIS';
-                $Dvalider = Decret::where([['okSGG', true], ['okPRIMATURE', true], ['okPRG', true]])
-                    ->get()
-                    ->count();
-                $Dtitle = "SIGNES";
-
-                $total = Decret::all()->count();
-            }
-        } else {
-            $totalSoumis = Decret::whereNotNull('submit_at')
-                ->get()
-                ->count();
-            $title1 = 'TOTAL';
-
-            $Dvalider = Decret::where([['okSGG', true], ['okPRIMATURE', true], ['okPRG', true]])
-                ->get()
-                ->count();
-            $Dtitle = "SOUMIS";
-            $titleTotal = "SIGNES";
-            $total = Decret::all()->count();
-        }
+        $total = Decret::all()->count();
+        $totalSoumis = Decret::whereNotNull('submit_at')->get()->count();
+        $Dvalider = Decret::where([
+            ['okSGG', true],
+            ['okPRIMATURE', true],
+            ['okPRG', true]
+        ])->get()->count();
 
         return [
             Stat::make("$titleTotal", "$total")

@@ -30,7 +30,9 @@ class ViewDecret extends ViewRecord implements HasShieldPermissions
         return ['view', 'view_any', 'create', 'update', 'delete', 'delete_any', 'retourner', 'valider', 'soumettre'];
     }
 
-protected function retour_possible()
+
+
+    protected function retour_possible()
     {
         if (auth()->user()->worker) {
             if (auth()->user()->worker->name == 'PRIMATURE' || auth()->user()->worker->name == 'SGG' || auth()->user()->worker->name == 'PRG') {
@@ -58,7 +60,9 @@ protected function retour_possible()
         }
     }
 
-   protected function validate_possible()
+
+
+    protected function validate_possible()
     {
         if (auth()->user()->worker) {
             if (auth()->user()->worker->name == 'PRIMATURE' || auth()->user()->worker->name == 'SGG') {
@@ -192,8 +196,7 @@ protected function retour_possible()
                             'comments' => 'Nous sommes ravis de vous informer que le projet de décret portant le code ' . $this->record->code . ' a été officiellement validé et signé par le President de la République.',
                             // 'comments' => $data['comments'],
                             // 'document' => $data['document'],
-                            'color' => '#43A047',
-                            'type' => 'valider',
+                            'color' => '#1B5E20',
                         ]);
                         $inbox = Inbox::where('name', 'SGG')->first();
                         $inbox1 = Inbox::where('name', 'PRIMATURE')->first();
@@ -203,33 +206,6 @@ protected function retour_possible()
                             'status' => 'Signé',
                             'okPRG' => true,
                         ]);
-                        $messageTitle = 'Notification de Validation du Projet de Décret (' . $this->record->code . ')';
-                        $message = 'Nous avons le plaisir de vous informer que le projet de décret portant le code (' . $this->record->code . ') a été signé par le President de la République.';
-                        Message::create([
-                            'decret_id' => $this->record->id,
-                            'inbox_id' => $inbox->id,
-                            'title' => $messageTitle,
-                            'contenu' => $message,
-                        ]);
-                        Message::create([
-                            'decret_id' => $this->record->id,
-                            'inbox_id' => $inbox1->id,
-                            'title' => $messageTitle,
-                            'contenu' => $message,
-                        ]);
-                        Message::create([
-                            'decret_id' => $this->record->id,
-                            'inbox_id' => $inbox2->id,
-                            'title' => $messageTitle,
-                            'contenu' => $message,
-                        ]);
-
-                        $recipient = auth()->user();
-                        $recipient->notify(
-                            Notification::make()
-                                ->title('Decret validé avec succès!')
-                                ->toDatabase(),
-                        );
                         Notification::make()
                             ->title('Validé avec succès')
                             ->success()
@@ -253,7 +229,7 @@ protected function retour_possible()
                     if ($this->record->validations->count() >= 1) {
                         $comments = 'Prière de recevoir à nouveau le projet de decret ' . $this->record->code . 'pour examen et avis. ';
                     } else {
-                        $comments = 'Prière de recevoir le projet de decret ' . $this->record->code . ' pour examen et avis. ';
+                        $comments = 'Merci de recevoir le projet de decret ' . $this->record->code . ' pour examen et avis. ';
                     }
                     //validation SGG
                     if (auth()->user()->worker->id === $workDepartement->id) {
@@ -268,14 +244,6 @@ protected function retour_possible()
 
                             // 'comments' => $data['comments'],
                             // 'document' => $data['document'],
-                        ]);
-                        $messageTitle = 'Réception du projet de decret ' . $this->record->code;
-                        $message = 'Prière de recevoir le projet de decret ' . $this->record->code . ' pour examen et avis. ';
-                        Message::create([
-                            'decret_id' => $this->record->id,
-                            'inbox_id' => $inbox->id,
-                            'title' => $messageTitle,
-                            'contenu' => $message,
                         ]);
 
                         $this->record->update([
@@ -334,22 +302,12 @@ protected function retour_possible()
                                 'decret_id' => $this->record->id,
                                 'comments' => $data['comments'],
                                 'document' => $data['document'],
-                                'color' => '#E24A68',
-                                'type' => 'retourner',
+                                'color' => '#FF5722',
                             ]);
                             $inbox = Inbox::where('name', $this->record->init)->first();
                             $this->record->update([
                                 'inbox_id' => $inbox->id,
                                 'status' => 'Retour SGG',
-                            ]);
-
-                            $messageTitle = 'Notification de retour du Projet de Décret (' . $this->record->code . ')';
-                            $message = 'Prière de recevoir le projet de decret ' . $this->record->code . ' correction. ';
-                            Message::create([
-                                'decret_id' => $this->record->id,
-                                'inbox_id' => $inbox->id,
-                                'title' => $messageTitle,
-                                'contenu' => $message,
                             ]);
                             Notification::make()
                                 ->title('Rétourner avec succès!')
@@ -383,32 +341,6 @@ protected function retour_possible()
                                 'status' => 'Retour Primature',
                                 'okSGG' => false,
                             ]);
-                            $messageTitle =
-                                'Notification de retour du Projet de Décret (' . $this->record->code . ')';
-                            $message = 'Prière de recevoir le projet de decret ' . $this->record->code . ' correction. ';
-                            Message::create([
-                                'decret_id' => $this->record->id,
-                                'inbox_id' => $inbox1->id,
-                                'title' => $messageTitle,
-                                'contenu' => $message,
-                            ]);
-                            Message::create([
-                                'decret_id' => $this->record->id,
-                                'inbox_id' => $inbox2->id,
-                                'title' => $messageTitle,
-                                'contenu' => $message,
-                            ]);
-                            Notification::make()
-                                ->title('Rétourner avec succès!')
-                                ->success()
-                                ->send();
-
-                            $recipient = auth()->user();
-                            $recipient->notify(
-                                Notification::make()
-                                    ->title('Decret retourner avec succès!')
-                                    ->toDatabase(),
-                            );
                             Notification::make()
                                 ->title('Envoyé avec succès')
                                 ->success()
@@ -423,8 +355,7 @@ protected function retour_possible()
                                 'decret_id' => $this->record->id,
                                 'comments' => $data['comments'],
                                 'document' => $data['document'],
-                                'color' => '#E24A68',
-                                'type' => 'retourner',
+                                'color' => '#DD2C00',
                             ]);
                             $inbox = Inbox::where('name', $this->record->init)->first();
                             $inbox1 = Inbox::where('name', "SGG")->first();
@@ -434,28 +365,6 @@ protected function retour_possible()
                                 'status' => 'Retour Presidence',
                                 'okPRIMATURE' => false,
                                 'okSGG' => false,
-                            ]);
-                            $messageTitle = 'Notification de Retour du Projet de Décret (' . $this->record->code . ')';
-                            $messageTitle
-                                = 'Notification de Retour du Projet de Décret (' . $this->record->code . ')';
-                            $message = 'Nous tenons à vous informer que nous avons décidé de retourner le projet de décret portant le code ' . $this->record->code;
-                            Message::create([
-                                'decret_id' => $this->record->id,
-                                'inbox_id' => $inbox->id,
-                                'title' => $messageTitle,
-                                'contenu' => $message,
-                            ]);
-                            Message::create([
-                                'decret_id' => $this->record->id,
-                                'inbox_id' => $inbox1->id,
-                                'title' => $messageTitle,
-                                'contenu' => $message,
-                            ]);
-                            Message::create([
-                                'decret_id' => $this->record->id,
-                                'inbox_id' => $inbox2->id,
-                                'title' => $messageTitle,
-                                'contenu' => $message,
                             ]);
                             Notification::make()
                                 ->title('Rétourner avec succès!')
@@ -505,21 +414,6 @@ protected function retour_possible()
                             'status' => 'Examen Primature',
                             'okSGG' => true,
                         ]);
-                        $messageTitle = 'Notification de Validation du Projet de Décret (' . $this->record->code . ')';
-                        $message = 'Nous avons le plaisir de vous informer que le projet de décret portant le code (' . $this->record->code . ') a été validé à notre niveau.';
-                        Message::create([
-                            'decret_id' => $this->record->id,
-                            'inbox_id' => $inbox->id,
-                            'title' => $messageTitle,
-                            'contenu' => $message,
-                        ]);
-
-                        $recipient = auth()->user();
-                        $recipient->notify(
-                            Notification::make()
-                                ->title('Decret retourner avec succès!')
-                                ->toDatabase(),
-                        );
                         Notification::make()
                             ->title('Validé avec succès')
                             ->success()
@@ -533,8 +427,7 @@ protected function retour_possible()
                             'decret_id' => $this->record->id,
                             'comments' => 'Nous sommes ravis de vous informer que le projet de décret portant le code ' . $this->record->code . ' a été officiellement validé par notre département.',
                             // 'comments' => $data['comments'],
-                            'color' => '#43A047',
-                            'type' => 'valider',
+                            'color' => '#388E3C',
                         ]);
                         $inbox = Inbox::where('name', 'PRG')->first();
                         $inbox1 = Inbox::where('name', 'SGG')->first();
@@ -544,33 +437,6 @@ protected function retour_possible()
                             'status' => 'Examen Presidence',
                             'okPRIMATURE' => true,
                         ]);
-                        $messageTitle = 'Notification de Validation du Projet de Décret (' . $this->record->code . ')';
-                        $message = 'Nous avons le plaisir de vous informer que le projet de décret portant le code (' . $this->record->code . ') a été validé à notre niveau.';
-                        Message::create([
-                            'decret_id' => $this->record->id,
-                            'inbox_id' => $inbox->id,
-                            'title' => $messageTitle,
-                            'contenu' => $message,
-                        ]);
-                        Message::create([
-                            'decret_id' => $this->record->id,
-                            'inbox_id' => $inbox1->id,
-                            'title' => $messageTitle,
-                            'contenu' => $message,
-                        ]);
-                        Message::create([
-                            'decret_id' => $this->record->id,
-                            'inbox_id' => $inbox2->id,
-                            'title' => $messageTitle,
-                            'contenu' => $message,
-                        ]);
-
-                        $recipient = auth()->user();
-                        $recipient->notify(
-                            Notification::make()
-                                ->title('Decret validé avec succès!')
-                                ->toDatabase(),
-                        );
                         Notification::make()
                             ->title('Validé avec succès')
                             ->success()
