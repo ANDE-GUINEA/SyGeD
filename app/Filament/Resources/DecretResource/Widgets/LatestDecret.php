@@ -17,8 +17,8 @@ use Malzariey\FilamentDaterangepickerFilter\Filters\DateRangeFilter;
 
 class LatestDecret extends BaseWidget
 {
-    protected int | string | array $columnSpan = 'full';
     protected static ?string $heading = 'LISTE DES DECRETS SOUMIS';
+    protected int | string | array $columnSpan = 'full';
     public function table(Table $table): Table
     {
         return $table
@@ -41,9 +41,10 @@ class LatestDecret extends BaseWidget
                 TextColumn::make('created_at')
                     ->searchable()
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: false)
+                    ->toggleable(isToggledHiddenByDefault: true)
                     ->label('DATE DE CREATION')
                     ->dateTime('d/m/Y'),
+
                 TextColumn::make('submit_at')
                     ->searchable()
                     ->sortable()
@@ -111,12 +112,6 @@ class LatestDecret extends BaseWidget
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->label('CONTENU'),
-                TextColumn::make('created_at')
-                    ->searchable()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true)
-                    ->label('Date de création')
-                    ->dateTime('d/m/Y'),
             ])->striped()
             ->filters([Tables\Filters\TrashedFilter::make(), DateRangeFilter::make('created_at')->label('Filtrer par la date de création')])
             // ->contentGrid([

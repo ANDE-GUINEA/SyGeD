@@ -67,4 +67,14 @@ class Inbox extends Model
     {
         return $this->hasMany(Message::class);
     }
+
+    /**
+     * Get all of the arretes for the Inbox
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function arretes(): HasMany
+    {
+        return $this->hasMany(Arrete::class);
+    }
 }

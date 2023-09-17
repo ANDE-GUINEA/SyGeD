@@ -14,7 +14,6 @@ class DecretChart extends ApexChartWidget
 // ChartWidget
 {
     protected static string $color = 'info';
-    protected int | string | array $columnSpan = 'full';
 
     // protected function getData(): array
     // {

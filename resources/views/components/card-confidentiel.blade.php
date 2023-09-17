@@ -1,7 +1,6 @@
 @if(auth()->user()->departement)
 <a
-@if (
-    (auth()->user()->departement && auth()->user()->worker->name == 'PRIMATURE') ||
+@if ( auth()->user()->departement && auth()->user()->worker->name == 'PRIMATURE' ||
         auth()->user()->worker->name == 'PRG' ||
         auth()->user()->departement->name == $record->init )
         href="{{ asset('storage/'. $dossier) }}" target="__blank"
@@ -15,8 +14,9 @@
         <path stroke-linecap="round" stroke-linejoin="round"
             d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
     </svg>
-    <span class="ml-2 text-sm">
-        {{ $dossier}}
+    {{ 'Document confidentiel ' }}
+    <span class="p-10 ml-2 text-sm text-white bg-red-600 rounded shadow">
+          {{ $key+1 }}
     </span>
 </a>
 @endif

@@ -16,15 +16,22 @@ return new class extends Migration
             $table->foreignId('user_id')
                 ->constrained()
                 ->cascadeOnDelete()
-                ->cascadeOnUpdate();
+                ->cascadeOnUpdate()
+                ->nullable();
             $table->foreignId('decret_id')
-                ->constrained()
+                // ->constrained()
                 ->cascadeOnDelete()
-                ->cascadeOnUpdate();
+                ->cascadeOnUpdate()
+                ->nullable();
+            $table->foreignId('arrete_id')
+                // ->constrained()
+                ->cascadeOnDelete()
+                ->cascadeOnUpdate()
+                ->nullable();
             $table->longText('comments')->nullable();
             $table->string('document')->nullable();
             $table->string('color')->nullable();
-            $table->enum('state', ['En attente', 'Approuvé', 'Rejeté'])->default('En attente');
+            $table->enum('type', ['valider', 'retourner', 'signer', 'publier', 'soumis'])->default('soumis');
             $table->softDeletes();
             $table->timestamps();
         });

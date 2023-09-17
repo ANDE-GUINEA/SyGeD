@@ -223,7 +223,6 @@
     </h1>
     <ul class="w-full contener">
         @forelse ($record->validations as $item)
-
         <li style="--accent-color:{{ $item->color }}" class="box fi-descript">
             <div class="date">{!! $item->user->departement->name !!} {!! ':' !!} {!! $item->created_at->format('d/m/Y H:m') !!}</div>
             <div class="text-justify descr dark:text-gray-700 dark:bg-gray-50">

@@ -14,10 +14,11 @@ class Decret extends Model
 {
     use HasFactory, SoftDeletes;
 
-    protected $guarded = [];
+    protected $guarded = ['options'];
     protected $casts = [
-        'documentPublic' => 'array',
-        'documentPrivate' => 'array',
+        'references' => 'array',
+        'confidential' => 'array',
+        'autres' => 'array',
     ];
     public static function boot()
     {
@@ -94,5 +95,25 @@ class Decret extends Model
     public function messages(): HasMany
     {
         return $this->hasMany(Message::class);
+    }
+
+    /**
+     * Get all of the archives for the Decret
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function archives(): HasMany
+    {
+        return $this->hasMany(Archive::class);
+    }
+
+    /**
+     * Get all of the pubiliers for the Decret
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function publiers(): HasMany
+    {
+        return $this->hasMany(Publie::class);
     }
 }

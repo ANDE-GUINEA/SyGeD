@@ -119,4 +119,24 @@ class User extends Authenticatable implements FilamentUser
     {
         return $this->hasMany(Message::class);
     }
+
+    /**
+     * Get all of the archives for the User
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function archives(): HasMany
+    {
+        return $this->hasMany(Archive::class);
+    }
+
+    /**
+     * Get all of the arretes for the User
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function arretes(): HasMany
+    {
+        return $this->hasMany(Arrete::class);
+    }
 }

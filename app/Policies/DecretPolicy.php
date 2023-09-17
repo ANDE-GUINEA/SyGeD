@@ -51,31 +51,9 @@ class DecretPolicy
      * @param  \App\Models\Decret  $decret
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function update(User $user, Decret $decret)
+    public function update(User $user, Decret $decret): bool
     {
-        if (auth()->user()->departement) {
-            if (
-                auth()->user()->departement->name ===
-                $decret->init &&
-                auth()->user()->departement->inbox->id ===
-                $decret->inbox->id
-            ) {
-                return $user->can('update_decret');
-            }
-        } else {
-            return $user->can('update_decret');
-        }
-    }
-
-    /**
-     * Determine whether the user can retourne decretes.
-     *
-     * @param  \App\Models\User  $admin
-     * @return \Illuminate\Auth\Access\Response|bool
-     */
-    public function retourne(User $user)
-    {
-        return $user->can('retourne_decret');
+        return $user->can('update_decret');
     }
 
     /**
@@ -85,20 +63,9 @@ class DecretPolicy
      * @param  \App\Models\Decret  $decret
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function delete(User $user, Decret $decret)
+    public function delete(User $user, Decret $decret): bool
     {
-        if (auth()->user()->departement) {
-            if (
-                auth()->user()->departement->name ===
-                $decret->init &&
-                auth()->user()->departement->inbox->id ===
-                $decret->inbox->id
-            ) {
-                return $user->can('delete_decret');
-            }
-        } else {
-            return $user->can('delete_decret');
-        }
+        return $user->can('delete_decret');
     }
 
     /**
@@ -109,7 +76,6 @@ class DecretPolicy
      */
     public function deleteAny(User $user): bool
     {
-
         return $user->can('delete_any_decret');
     }
 
@@ -120,21 +86,9 @@ class DecretPolicy
      * @param  \App\Models\Decret  $decret
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function forceDelete(User $user, Decret $decret)
+    public function forceDelete(User $user, Decret $decret): bool
     {
-        if (auth()->user()->departement) {
-            if (
-                auth()->user()->departement->name ===
-                $decret->init
-                &&
-                auth()->user()->departement->inbox->id ===
-                $decret->inbox->id
-            ) {
-                return $user->can('force_delete_decret');
-            }
-        } else {
-            return $user->can('force_delete_decret');
-        }
+        return $user->can('force_delete_decret');
     }
 
     /**
@@ -157,19 +111,7 @@ class DecretPolicy
      */
     public function restore(User $user, Decret $decret): bool
     {
-        if (auth()->user()->departement) {
-            if (
-                auth()->user()->departement->name ===
-                $decret->init
-                &&
-                auth()->user()->departement->inbox->id ===
-                $decret->inbox->id
-            ) {
-                return $user->can('restore_decret');
-            }
-        } else {
-            return $user->can('restore_decret');
-        }
+        return $user->can('restore_decret');
     }
 
     /**
@@ -205,4 +147,5 @@ class DecretPolicy
     {
         return $user->can('reorder_decret');
     }
+
 }

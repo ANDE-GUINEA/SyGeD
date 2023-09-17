@@ -61,4 +61,14 @@ class Type extends Model
     {
         return $this->hasMany(Decret::class);
     }
+
+    /**
+     * Get all of the arretes for the Type
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function arretes(): HasMany
+    {
+        return $this->hasMany(Arrete::class);
+    }
 }

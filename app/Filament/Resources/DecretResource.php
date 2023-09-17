@@ -3,8 +3,10 @@
 namespace App\Filament\Resources;
 
 use Filament\Forms;
+use App\Models\Type;
 use Filament\Tables;
 use App\Models\Decret;
+use Filament\Forms\Get;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
 use Filament\Resources\Resource;
@@ -13,6 +15,7 @@ use Filament\Forms\Components\Grid;
 use Filament\Tables\Actions\Action;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Section;
+use Filament\Forms\Components\KeyValue;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Textarea;
 use Filament\Tables\Columns\IconColumn;
@@ -28,6 +31,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Filament\Tables\Columns\BooleanColumn;
 use App\Filament\Resources\DecretResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Wallo\FilamentSelectify\Components\ButtonGroup;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 use App\Filament\Resources\DecretResource\RelationManagers;
 use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
@@ -37,10 +41,10 @@ class DecretResource extends Resource
 {
     protected static ?string $model = Decret::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-folder-open';
-    protected static ?string $navigationLabel = 'MES DECRETS';
+    protected static ?string $navigationIcon = 'heroicon-o-folder';
+    protected static ?string $navigationLabel = 'Decrets';
     protected static ?string $recordTitleAttribute = 'name';
-    protected static ?int $navigationSort = 2;
+    protected static ?int $navigationSort = 1;
     // protected static ?string $navigationGroup = 'SYGED';
     protected static ?string $pollingInterval = '10s';
     public static function getNavigationBadge(): ?string
@@ -51,139 +55,101 @@ class DecretResource extends Resource
     public static function form(Form $form): Form
     {
         return $form->schema([
-            Section::make('INFORMATIONS')
-                ->description('')
-                ->collapsible()
-                ->compact()
+
+            Card::make()
                 ->schema([
                     Select::make('type_id')
                         ->relationship('type', 'title')
                         ->searchable()
                         ->preload()
                         ->required()
+                        // ->disabled()
+                        ->default(Type::where('title', 'DECRET DE NOMINATION')->first()->id)
                         ->helperText('Merci de selectionner le type de decret.')
                         ->label('TYPES DE DECRET'),
                     TextInput::make('objet')
                         ->required()
                         ->helperText('Merci de renseigner le libelle du decret.')
-                        ->extraAttributes(['class' => 'uppercase'])
-                        ->dehydrateStateUsing(fn (string $state): string => ucwords($state))
-                        ->live()
-                        // ->hint('Documentation? What documentation?!')
                         ->label('LIBELLE DU DECRET'),
                     Grid::make(1)->schema([
                         Textarea::make('content')
-                            ->label('DESCRIPTION')
+                            ->label('OBJET DU DECRET')
+                            ->required()
                             ->helperText('Merci de donner une brève description en 500 caractères maximum')
                             ->minLength(10)
                             ->maxLength(1024)
-                            // ->limit(50)
-                            // ->tooltip(function (TextColumn $column): ?string {
-                            //     $state = $column->getState();
-
-                            //     if (strlen($state) <= $column->getCharacterLimit()) {
-                            //         return null;
-                            //     }
-
-                            //     // Only render the tooltip if the column content exceeds the length limit.
-                            //     return $state;
-                            // })
+                            // ->limit(1024)
                             ->autosize(),
-                    ]), FileUpload::make('visa')
+                    ]),
+                    FileUpload::make('motif')
+                        ->required()
+                        ->label('EXPOSE DE MOTIF / RAPPORT ')
+                        ->enableOpen()
+                        ->maxSize(1024)
+                        ->directory('exposes de motif')
+                        ->preserveFilenames()
+                        ->enableDownload(),
+                    FileUpload::make('references')
+                        // ->required()
+                        ->helperText(
+                            'DOCUMENTS DE REFERENCE RELATIF A L\'EXPOSE DE MOTIF (Vous avez la possibilité de mettre plusieurs documents).',
+                        )
+                        ->label('DOCUMENTS DE REFERENCE ')
+                        ->enableOpen()
+                        ->multiple()
+                        ->maxSize(1024)
+                        ->directory('document de reference')
+                        ->preserveFilenames()
+                        ->enableDownload(),
+                    FileUpload::make('visa')
                         ->required()
                         ->label('VISA DU DECRET')
-                        // ->label('CONTENU PUBLIC DU DECRET(Exposé de motif, corps du decret, décision du conseil des ministres, etc.)')
                         ->enableOpen()
                         // ->multiple()
                         ->maxSize(1024)
-                        ->directory('decrets_files')
+                        ->directory('visa et corps')
                         ->preserveFilenames()
                         ->enableDownload(),
                     FileUpload::make('corps')
                         ->required()
                         ->label('CORPS DU DECRET')
-                        // ->label('CONTENU PUBLIC DU DECRET(Exposé de motif, corps du decret, décision du conseil des ministres, etc.)')
                         ->enableOpen()
                         // ->multiple()
                         ->maxSize(1024)
-                        ->directory('decrets_files')
+                        ->directory('corps')
                         ->preserveFilenames()
                         ->enableDownload(),
-                    // FileUpload::make('documentPrivate')
+                    // FileUpload::make('confidential')
                     //     ->required()
                     //     ->multiple()
-                    //     ->label('CONTENU CONFIDENTIEL DU DECRET (Liste des personnes proposées, CV, Diplômes, ) ')
+                    //     ->label('DOCUMENTS CONFIDENTIELS')
+                    //     ->helperText('Liste des personnes proposées, CV, Diplômes etc... (accessibles uniquement par la Présidence et la Primature)')
                     //     ->enableOpen()
                     //     ->maxSize(1024)
-                    //     ->directory('decrets_files')
+                    //     ->directory('confidentiels')
                     //     ->preserveFilenames()
                     //     ->enableDownload(),
+                    Section::make('AUTRES DOCUMENTS')
+                        ->description('')
+                        ->collapsible()
+                        ->compact()
+                        ->schema([
+                            FileUpload::make('autres')
+                                // ->required()
+                                ->multiple()
+                                ->label('DOCUMENTS')
+                                ->enableOpen()
+                                ->maxSize(1024)
+                                ->directory('autres')
+                                ->preserveFilenames()
+                                ->helperText('Vous avez la possibilité de mettre plusieurs documents.')
+                                ->enableDownload(),
+                        ])
+                        ->columns(1),
                 ])
                 ->columns(2),
 
-            // Section::make('Heading')
-            //     ->description('')
-            //     ->collapsible()
-            //     ->compact()
-            //     ->schema([
-            //         FileUpload::make('visa')
-            //             ->required()
-            //             ->label('VISA')
-            //             // ->label('CONTENU PUBLIC DU DECRET(Exposé de motif, corps du decret, décision du conseil des ministres, etc.)')
-            //             ->enableOpen()
-            //             // ->multiple()
-            //             ->maxSize(1024)
-            //             ->directory('decrets_files')
-            //             ->preserveFilenames()
-            //             ->enableDownload(),
-            //         FileUpload::make('corps')
-            //             ->required()
-            //             ->label('CORPS')
-            //             // ->label('CONTENU PUBLIC DU DECRET(Exposé de motif, corps du decret, décision du conseil des ministres, etc.)')
-            //             ->enableOpen()
-            //             // ->multiple()
-            //             ->maxSize(1024)
-            //             ->directory('decrets_files')
-            //             ->preserveFilenames()
-            //             ->enableDownload(),
-            //         // FileUpload::make('documentPrivate')
-            //         //     ->required()
-            //         //     ->multiple()
-            //         //     ->label('CONTENU CONFIDENTIEL DU DECRET (Liste des personnes proposées, CV, Diplômes, ) ')
-            //         //     ->enableOpen()
-            //         //     ->maxSize(1024)
-            //         //     ->directory('decrets_files')
-            //         //     ->preserveFilenames()
-            //         //     ->enableDownload(),
-            //     ])
-            //     ->columns(2),
-            Section::make('AUTRES DOCUMENTS')
-                ->description('')
-                ->collapsible()
-                ->compact()
-                ->schema([
-                    FileUpload::make('documentPublic')
-                        // ->required()
-                        ->multiple()
-                        ->label('PUBLICS')
-                        ->enableOpen()
-                        ->maxSize(1024)
-                        ->directory('public_files')
-                        ->preserveFilenames()
-                        ->helperText('Exposé de motif, décision du conseil des ministres, etc. ')
-                        ->enableDownload(),
-                    FileUpload::make('documentPrivate')
-                        // ->required()
-                        ->multiple()
-                        ->helperText('Liste des personnes proposées, CV, Diplômes, ')
-                        ->label('CONFIDENTIELS (accessibles uniquement par la Présidence et la Primature)')
-                        ->enableOpen()
-                        ->maxSize(1024)
-                        ->directory('confidential_files')
-                        ->preserveFilenames()
-                        ->enableDownload(),
-                ])
-                ->columns(2),
+
         ]);
     }
 
@@ -213,7 +179,7 @@ class DecretResource extends Resource
                     ->searchable()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: false)
-                    ->label('Date de soumission')
+                    ->label('DATE DE SOUMISSION')
                     ->dateTime('d/m/Y'),
 
                 TextColumn::make('objet')
@@ -226,7 +192,7 @@ class DecretResource extends Resource
                 TextColumn::make('type.title')
                     ->searchable()
                     ->sortable()
-                    ->tooltip(fn (Model $record): string => " {$record->type->description}")
+                    ->tooltip(fn (Model $record): string => " {$record->content}")
                     ->html()
                     ->toggleable(isToggledHiddenByDefault: false)
                     ->label('TYPE'),
@@ -277,20 +243,15 @@ class DecretResource extends Resource
                     ->searchable()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true)
-                    ->label('CONTENU DU DECRET'),
-                TextColumn::make('created_at')
-                    ->searchable()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true)
-                    ->label('Date de création')
-                    ->dateTime('d/m/Y'),
+                    ->label('OBJET DU DECRET'),
             ])
-            ->poll('3600s')->striped()->deferLoading()
+            ->poll('3600s')
+            ->striped()
+            ->deferLoading()
             ->filters([Tables\Filters\TrashedFilter::make(), DateRangeFilter::make('created_at')->label('Filtrer par la date de création')])
             ->actions([Tables\Actions\ActionGroup::make([Tables\Actions\ViewAction::make(), Tables\Actions\EditAction::make(), Tables\Actions\DeleteAction::make(), Tables\Actions\ForceDeleteAction::make(), Tables\Actions\RestoreAction::make()])])
             ->bulkActions([
-                ExportBulkAction::make()
-                    ->label('Exporter en Excel'),
+                ExportBulkAction::make()->label('Exporter en Excel'),
                 Tables\Actions\DeleteBulkAction::make(),
                 Tables\Actions\ForceDeleteBulkAction::make(),
                 Tables\Actions\RestoreBulkAction::make(),

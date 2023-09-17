@@ -2,13 +2,17 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\Resources\ArreteResource\Widgets\LatestArrete;
+use App\Filament\Resources\ArreteResource\Widgets\StatsOverviewArrete;
 use Filament\Pages;
 use Filament\Panel;
 use Filament\Widgets;
 use Filament\PanelProvider;
+use Filament\Pages\Dashboard;
 use Filament\Support\Colors\Color;
 use Awcodes\Overlook\OverlookPlugin;
 use App\Filament\Widgets\StatsOverview;
+use Filament\Navigation\NavigationItem;
 use Filament\Http\Middleware\Authenticate;
 use Jeffgreco13\FilamentBreezy\BreezyCore;
 use Awcodes\Overlook\Widgets\OverlookWidget;
@@ -25,6 +29,7 @@ use Filament\Http\Middleware\DisableBladeIconComponents;
 use lockscreen\FilamentLockscreen\Http\Middleware\Locker;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
+use Njxqlus\FilamentProgressbar\FilamentProgressbarPlugin;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use App\Filament\Resources\DecretResource\Widgets\DecretChart;
 use App\Filament\Resources\DecretResource\Widgets\LatestDecret;
@@ -44,6 +49,10 @@ class AdminPanelProvider extends PanelProvider
             ->path('admin')
             ->login()
             ->profile()
+            // ->defaultAvatarProvider(BoringAvatarsProvider::class)
+            ->globalSearch(false)
+            ->passwordReset()
+            ->emailVerification()
             // ->registration()
             ->colors([
                 'danger' => Color::Rose,
@@ -61,6 +70,8 @@ class AdminPanelProvider extends PanelProvider
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
             ->pages([
                 Pages\Dashboard::class,
+            ])->resources([
+                config('filament-logger.activity_resource')
             ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
             ->widgets([
@@ -68,7 +79,9 @@ class AdminPanelProvider extends PanelProvider
                 // Widgets\AccountWidget::class,
                 // Widgets\FilamentInfoWidget::class,
                 StatsOverview::class,
+                StatsOverviewArrete::class,
                 LatestDecret::class,
+                LatestArrete::class,
                 // OverlookWidget::class,
             ])
             // ->favicon(asset('images/favicon.png')),
@@ -86,6 +99,7 @@ class AdminPanelProvider extends PanelProvider
                 StickyHeaderPlugin::make()
                     // ->floating()
                     ->colored(),
+                FilamentProgressbarPlugin::make()->color('#3949AB'),
                 OverlookPlugin::make()
                     ->sort(2)
                     ->columns([

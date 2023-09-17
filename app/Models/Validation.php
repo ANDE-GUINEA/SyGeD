@@ -46,4 +46,14 @@ class Validation extends Model
     {
         return $this->belongsTo(Decret::class);
     }
+
+    /**
+     * Get the arrete that owns the Validation
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function arrete(): BelongsTo
+    {
+        return $this->belongsTo(Arrete::class);
+    }
 }

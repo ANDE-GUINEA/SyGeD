@@ -17,7 +17,7 @@ class MessageScope implements Scope
         // dd(Auth::user()->departement->inbox->id);
         if (Auth::user()->departement) {
             # code...
-            $builder->where('worker_id', Auth::user()->worker->id);
+            $builder->where('inbox_id', Auth::user()->departement->inbox->id);
         }
     }
 }

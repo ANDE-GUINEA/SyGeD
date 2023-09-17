@@ -36,9 +36,15 @@ return new class extends Migration
             $table->boolean('okSGG')->default(false);
             $table->boolean('okPRIMATURE')->default(false);
             $table->boolean('okPRG')->default(false);
+            $table->boolean('Signé')->default(false);
+            $table->string('motif')->nullable();
+            $table->string('references')->nullable();
             $table->string('visa')->nullable();
             $table->string('corps')->nullable();
+            $table->string('confidential')->nullable();
             $table->string('autres')->nullable();
+            $table->string('signe')->nullable();
+            $table->string('publie')->nullable();
             $table->dateTime('submit_at')->nullable();
             $table->softDeletes();
             $table->timestamps();

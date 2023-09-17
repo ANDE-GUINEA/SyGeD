@@ -1,0 +1,130 @@
+<?php
+
+namespace App\Filament\Resources\ArreteResource\Widgets;
+
+use Filament\Tables;
+use App\Models\Arrete;
+use Filament\Tables\Table;
+use Filament\Tables\Columns\IconColumn;
+use Filament\Tables\Columns\TextColumn;
+use Illuminate\Database\Eloquent\Model;
+use Filament\Tables\Columns\BadgeColumn;
+use Filament\Tables\Columns\BooleanColumn;
+use Filament\Widgets\TableWidget as BaseWidget;
+use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
+use Malzariey\FilamentDaterangepickerFilter\Filters\DateRangeFilter;
+
+class LatestArrete extends BaseWidget
+{
+    protected static ?string $heading = 'LISTE DES ARRETES SOUMIS';
+    protected int | string | array $columnSpan = 'full';
+    public function table(Table $table): Table
+    {
+        return $table
+            ->query(
+                Arrete::whereNotNull('submit_at')->latest()
+            )
+            ->columns([
+                TextColumn::make('user.name')
+                    // ->searchable()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->label('Utilisateur'),
+                TextColumn::make('code')
+                    ->searchable()
+                    ->sortable()
+                    ->tooltip(fn (Model $record): string => " {$record->content}")
+                    ->html()
+                    ->toggleable(isToggledHiddenByDefault: false)
+                    ->label('CODE'),
+                TextColumn::make('created_at')
+                    ->searchable()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: false)
+                    ->label('DATE DE CREATION')
+                    ->dateTime('d/m/Y'),
+                TextColumn::make('submit_at')
+                    ->searchable()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: false)
+                    ->label('DATE DE SOUMISSION')
+                    ->dateTime('d/m/Y'),
+
+                TextColumn::make('objet')
+                    ->searchable()
+                    ->sortable()
+                    ->tooltip(fn (Model $record): string => " {$record->content}")
+                    ->html()
+                    ->toggleable(isToggledHiddenByDefault: false)
+                    ->label('LIBELLE'),
+                TextColumn::make('type.title')
+                    ->searchable()
+                    ->sortable()
+                    ->tooltip(fn (Model $record): string => " {$record->content}")
+                    ->html()
+                    ->toggleable(isToggledHiddenByDefault: false)
+                    ->label('TYPE'),
+                TextColumn::make('init')
+                    ->searchable()
+                    ->sortable()
+                    ->tooltip(fn (Model $record): string => " {$record->content}")
+                    ->html()
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->label('PORTEUR'),
+                TextColumn::make('inbox.name')
+                    ->searchable()
+                    ->sortable()
+                    ->tooltip(fn (Model $record): string => " {$record->content}")
+                    ->html()
+                    ->toggleable(isToggledHiddenByDefault: false)
+                    ->label('POSITION'),
+                BadgeColumn::make('status')
+                    ->colors([
+                        'warning' => static fn ($state): bool => $state === 'En Elaboration',
+                        'primary' => static fn ($state): bool => $state === 'Examen SGG',
+                        'primary' => static fn ($state): bool => $state === 'Examen Primature',
+                        // 'primary' => static fn ($state): bool => $state === 'Examen Presidence',
+                        'danger' => static fn ($state): bool => $state === 'Retour SGG',
+                        'danger' => static fn ($state): bool => $state === 'Retour Primature',
+                        'danger' => static fn ($state): bool => $state === 'En Attente Signature',
+                        'success' => static fn ($state): bool => $state === 'Signé',
+                    ])
+                    ->toggleable(isToggledHiddenByDefault: false)
+                    ->sortable()
+                    ->label('STATUT'),
+                BooleanColumn::make('okSGG')
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: false)
+                    ->label('VALIDER SGG ?'),
+                IconColumn::make('okPRIMATURE')
+                    ->boolean()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: false)
+                    ->label('VALIDER PRIMATURE ?'),
+                IconColumn::make('Signé')
+                    ->boolean()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: false)
+                    ->label('SIGNE ?'),
+                IconColumn::make('Publié')
+                    ->boolean()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: false)
+                    ->label('Publié ?'),
+                TextColumn::make('content')
+                    ->searchable()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->label('CONTENU DU L\'ARRETE'),
+            ])->striped()
+            ->filters([Tables\Filters\TrashedFilter::make(), DateRangeFilter::make('created_at')->label('Filtrer par la date de création')])
+            // ->contentGrid([
+            //     'md' => 2,
+            //     'xl' => 3,
+            // ])
+            ->bulkActions([
+                ExportBulkAction::make()
+                    ->label('Exporter en Excel'),
+            ]);
+    }
+}

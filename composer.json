@@ -10,6 +10,7 @@
     "require": {
         "php": "^8.1",
         "3x1io/filament-user": "^1.1",
+        "andrewdwallo/filament-selectify": "^2.0",
         "awcodes/filament-sticky-header": "^2.0",
         "awcodes/overlook": "^2.0",
         "bezhansalleh/filament-shield": "^3.0@beta",
@@ -26,9 +27,11 @@
         "leandrocfe/filament-apex-charts": "^3.0",
         "malzariey/filament-daterangepicker-filter": "^2.0",
         "marjose123/filament-lockscreen": "^2.0",
+        "njxqlus/filament-progressbar": "^1.0",
         "psr/simple-cache": "2.0",
         "pxlrbt/filament-excel": "^2.1",
         "rickdbcn/filament-email": "^1.0",
+        "solution-forest/filament-firewall": "^2.0",
         "spatie/laravel-sluggable": "^3.5",
         "z3d0x/filament-logger": "^0.6.0"
     },

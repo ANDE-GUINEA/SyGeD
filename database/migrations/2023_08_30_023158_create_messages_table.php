@@ -19,12 +19,17 @@ return new class extends Migration
                 ->cascadeOnUpdate()
                 ->nullable();
             $table->foreignId('decret_id')
-                ->constrained()
+                // ->constrained()
+                ->cascadeOnDelete()
+                ->cascadeOnUpdate()
+                ->nullable();
+            $table->foreignId('arrete_id')
+                // ->constrained()
                 ->cascadeOnDelete()
                 ->cascadeOnUpdate()
                 ->nullable();
             $table->foreignId('inbox_id')
-                ->constrained()
+                // ->constrained()
                 ->cascadeOnDelete()
                 ->cascadeOnUpdate()
                 ->nullable();
